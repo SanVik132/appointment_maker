@@ -39,8 +39,15 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'api',
     'rest_framework',
+    'import_export',
+
 
 ]
+STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = (BASE_DIR / 'media')
+STATICFILES_DIRS = [(BASE_DIR / 'static')]
+#STATIC_ROOT = BASE_DIR / 'static'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

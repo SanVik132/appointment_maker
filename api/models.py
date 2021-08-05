@@ -55,6 +55,7 @@ class Appointment(models.Model):
 
 class Out1(models.Model):
     flag = models.IntegerField()
+    symbol = models.CharField(max_length=255,null = True)
     date = models.DateField()
     open = models.FloatField()
     high = models.FloatField()
