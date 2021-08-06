@@ -46,7 +46,7 @@ class User(AbstractUser):
 class Appointment(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE,related_name='user_subscription')
     title = models.CharField(max_length=255)
-    datetime = models.DateTimeField()
+    datetime = models.DateTimeField(null = True)
     timestamp = models.DateTimeField(auto_now_add=True)
     def __str__(self):
         if self.user.email:
@@ -63,3 +63,8 @@ class Out1(models.Model):
     close = models.FloatField()
     volume = models.FloatField()
     adjclose = models.FloatField()
+
+
+class Time(models.Model):
+    start=models.TimeField()
+    end = models.TimeField()

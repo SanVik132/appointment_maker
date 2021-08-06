@@ -6,3 +6,7 @@ from import_export.admin import ImportExportModelAdmin
 class ServicesAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     list_display = ['flag', 'date']
     search_fields = ['date']
+
+
+admin.site.register(Appointment)
+admin.site.register(Time)    

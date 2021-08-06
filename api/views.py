@@ -7,9 +7,7 @@ from rest_framework.authtoken.models import Token
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth import authenticate,login
 from .jwt_token_auth import get_token,decrypt_token
-
-
-
+from datetime import datetime as dt
 
 def create_token(user):
     token, _ = Token.objects.get_or_create(user=user)
@@ -68,3 +66,58 @@ class LogInViewSet(viewsets.ModelViewSet):
                     return Response({"status":0,"message":"Unable to log in, please check your password"})
             else:
                 return Response({"status":0,"message":"Email is not registered"})
+
+
+class AppointmentiewSet(viewsets.ModelViewSet):
+    queryset = Appointment.objects.all()
+    serializer_class = AppointmentSerializer
+    http_method_names = ['get','post','delete']
+    
+    def list(self, request):
+        token = request.META.get("HTTP_AUTHORIZATION")
+        current_site = get_current_site(request)
+        user = decrypt_token(token)
+        if user:
+            appointment = Appointment.objects.filter(user=user)
+            appointment_list = []
+            for list_appointment in appointment:
+                appointment_list.append({"id":list_appointment.id,"appointment_datetime":list_appointment.datetime,"timestamp":list_appointment.timestamp})
+            return Response({"status":1,"message":"success","data":appointment_list})
+        else:
+            return Response({"status":3,"message":"invalid access token"})
+    
+    def create(self,request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            token = request.META.get("HTTP_AUTHORIZATION")
+            user = decrypt_token(token)
+            if user:
+                time = Time.objects.last()
+                apt_time = request.data['datetime']
+                print(apt_time)
+                t = dt.strptime(apt_time, '%Y-%m-%d %H:%M:%S').time()
+                print(t)
+                
+                if time.start < t:
+                    return Response({"status":0,"message":"Upload a time between 9-5"})
+                elif t > time.end:
+                    return Response({"status":0,"message":"Upload a time between 9-5"})
+                serializer.save(user=user)
+                
+                return Response({"status":1,"message":"Uploaded successfully","data":serializer.data})
+            else:
+                return Response({"status":3,"message":"invalid access token"})
+        return Response(serializer.errors)
+
+    def destroy(self, request, pk=None):
+        token = request.META.get("HTTP_AUTHORIZATION")
+        user = decrypt_token(token)
+        if user:
+            try:
+                kk = Appointment.objects.get(user=user,id=pk)
+                kk.delete()
+            except:
+                return Response({"status":0,"message":"Provide valid Appointment id"})
+            return Response({"status":1,"message":"Appointment deleted successfully"})
+        else:
+            return Response({"status":0,"message":"invalid access token"})
